@@ -34,8 +34,51 @@ class Home extends StatefulWidget {
 }
 
 class _HomeState extends State<Home> {
+
+  /** Controlador para armazenar texto digitado no campo */
+  final realController = TextEditingController();
+  final dolarController = TextEditingController();
+  final euroController = TextEditingController();
+
+  /** variavel para armazena o valor de compra retornado da api */
   double dolar;
   double euro;
+
+  /** função que recebe o texto digitado no momento em que é alterado*/
+  void _realChanged(String text){
+    if(text.isEmpty){
+      _clearAll();
+      return;
+    }
+    double real = double.parse(text);
+    dolarController.text = (real/dolar).toStringAsFixed(2);
+    euroController.text = (real/euro).toStringAsFixed(2);
+  }
+  void _dolarChanged(String text){
+    if(text.isEmpty){
+      _clearAll();
+      return;
+    }
+    double dolar = double.parse(text);
+    realController.text = (dolar * this.dolar).toStringAsFixed(2);
+    euroController.text = (dolar * this.dolar / euro).toStringAsFixed(2);
+  }
+  void _euroChanged(String text){
+    if(text.isEmpty){
+      _clearAll();
+      return;
+    }
+    double euro = double.parse(text);
+    realController.text = (euro * this.euro).toStringAsFixed(2);
+    dolarController.text = (euro * this.euro / dolar).toStringAsFixed(2);
+  }
+
+  /** Limpa os campos digitados */
+  void _clearAll(){
+    realController.text = "";
+    dolarController.text = "";
+    euroController.text = "";
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -72,6 +115,7 @@ class _HomeState extends State<Home> {
                         ) // Text
                       ); // Center
                 } else {
+
                   dolar = snapshot.data['results']['currencies']['USD']['buy'];
                   euro = snapshot.data['results']['currencies']['EUR']['buy'];
 
@@ -81,39 +125,13 @@ class _HomeState extends State<Home> {
                       crossAxisAlignment: CrossAxisAlignment.stretch,
                       children: <Widget>[
                         Icon(Icons.monetization_on,
-                            size: 150.0, color: Colors.amber),
-                        TextField(
-                          decoration: InputDecoration(
-                              labelText: "Reais",
-                              labelStyle: TextStyle(color: Colors.amber),
-                              border: OutlineInputBorder(),
-                              prefixText: "R\$ "
-                          ), // InputDecoration
-                          style: TextStyle(
-                              color: Colors.amber, fontSize: 25.0), // TextStyle
-                        ), // TextField
+                            size: 150.0, color: Colors.amber
+                        ), // Icon
+                        buildTextField("Reais", "R\$ ", realController, _realChanged),
                         Divider(),
-                        TextField(
-                          decoration: InputDecoration(
-                              labelText: "Dólares",
-                              labelStyle: TextStyle(color: Colors.amber),
-                              border: OutlineInputBorder(),
-                              prefixText: "US\$ "
-                          ), // InputDecoration
-                          style: TextStyle(
-                              color: Colors.amber, fontSize: 25.0), // TextStyle
-                        ), // TextField
+                        buildTextField("Dólares", "US\$ ", dolarController, _dolarChanged),
                         Divider(),
-                        TextField(
-                          decoration: InputDecoration(
-                              labelText: "Euros",
-                              labelStyle: TextStyle(color: Colors.amber),
-                              border: OutlineInputBorder(),
-                              prefixText: "€\$ "
-                          ), // InputDecoration
-                          style: TextStyle(
-                              color: Colors.amber, fontSize: 25.0), // TextStyle
-                        ) // TextField
+                        buildTextField("Euros", "€ ", euroController, _euroChanged),
                       ], // <Widget>[]
                     ), // Column
                   ); // SingleChildScrollView
@@ -123,4 +141,23 @@ class _HomeState extends State<Home> {
           ), // FutureBuilder
     ); // Scaffold
   } // build
+}
+
+/* Função que cria TextFields dinamico*/
+Widget buildTextField(String label, String prefix, TextEditingController c, Function f){
+   return TextField(
+            controller: c,    // armazena texto inserido no campo
+            decoration: InputDecoration(
+                labelText: label,
+                labelStyle: TextStyle(color: Colors.amber),
+                border: OutlineInputBorder(),
+                prefixText: prefix
+            ), // InputDecoration
+            style: TextStyle(
+                color: Colors.amber, fontSize: 25.0
+            ), // TextStyle
+            onChanged: f,    // Envia o texto digitado no momento digitado
+//            keyboardType: TextInputType.number,
+            keyboardType: TextInputType.numberWithOptions(decimal: true), // tranforma o numero digitado em decimal
+          ); // TextField
 }
