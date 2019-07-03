@@ -5,7 +5,7 @@ import 'package:async/async.dart';
 import 'dart:convert';
 
 const String request =
-    "https://api.hgbrasil.com/finance?format=json&key=61615ea9";
+    "https://api.hgbrasil.com/finance?format=json&key=xxxxxxea9";
 //const String request = "http://dadosabertos.almg.gov.br/ws/deputados/proposicoes/sumario?ini=20190101&fim=20191231&formato=json";
 
 void main() async {
